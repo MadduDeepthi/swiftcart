@@ -18,17 +18,18 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Generate Version
-      run: echo "VERSION=v1.$(date +%s)" >> $GITHUB_ENV
+      id: version
+      run: echo "VERSION=v1.$(date +%s)" >> $GITHUB_OUTPUT
 
     - name: Build Docker Image
       run: |
-        docker build -t swiftcart-backend:$VERSION ./backend
+        docker build -t swiftcart-backend:${{ steps.version.outputs.VERSION }} ./backend
 
     - name: Scan Image (Trivy)
-      run: |
-        docker run --rm aquasec/trivy image \
-        --severity HIGH,CRITICAL \
-        swiftcart-backend:$VERSION
+      uses: aquasecurity/trivy-action@v0.20.0
+      with:
+        image-ref: swiftcart-backend:${{ steps.version.outputs.VERSION }}
+        severity: HIGH,CRITICAL
 
     - name: Configure AWS (OIDC)
       uses: aws-actions/configure-aws-credentials@v2
