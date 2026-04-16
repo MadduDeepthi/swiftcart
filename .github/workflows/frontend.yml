@@ -1,0 +1,36 @@
+name: Frontend Build
+
+on:
+  push:
+    paths:
+      - "frontend/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Install Dependencies
+      run: |
+        cd frontend
+        npm install
+
+    - name: Build APK
+      run: |
+        cd frontend/android
+        chmod +x gradlew
+        ./gradlew assembleRelease
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: swiftcart-apk
+        path: frontend/android/app/build/outputs/apk/release/app-release.apk

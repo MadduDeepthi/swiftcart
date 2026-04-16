@@ -1,0 +1,59 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "backend/**"
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Generate Version
+      run: echo "VERSION=v1.$(date +%s)" >> $GITHUB_ENV
+
+    - name: Build Docker Image
+      run: |
+        docker build -t swiftcart-backend:$VERSION ./backend
+
+    - name: Scan Image (Trivy)
+      run: |
+        docker run --rm aquasec/trivy image \
+        --severity HIGH,CRITICAL \
+        swiftcart-backend:$VERSION
+
+    - name: Configure AWS (OIDC)
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::851725587609:role/github-actions-role
+        aws-region: us-east-1
+
+    - name: Login to ECR
+      run: |
+        aws ecr get-login-password --region us-east-1 \
+        | docker login --username AWS --password-stdin 851725587609.dkr.ecr.us-east-1.amazonaws.com
+
+    - name: Push to ECR
+      run: |
+        docker tag swiftcart-backend:$VERSION 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:$VERSION
+        docker push 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:$VERSION
+
+    - name: Update Helm Values
+      run: |
+        sed -i "s/tag:.*/tag: $VERSION/" helm/fastapi/values.yaml
+
+    - name: Commit & Push Changes
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add helm/fastapi/values.yaml
+        git commit -m "Update image to $VERSION" || echo "No changes to commit"
+        git push
