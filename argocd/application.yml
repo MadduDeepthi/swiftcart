@@ -10,7 +10,7 @@ spec:
     repoURL: https://github.com/MadduDeepthi/swiftcart.git
     targetRevision: HEAD
     path: helm/fastapi
-
+    helm: {} 
   destination:
     server: https://kubernetes.default.svc
     namespace: default
