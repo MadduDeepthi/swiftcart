@@ -44,17 +44,17 @@ jobs:
 
     - name: Push to ECR
       run: |
-        docker tag swiftcart-backend:$VERSION 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:$VERSION
-        docker push 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:$VERSION
+        docker tag swiftcart-backend:${{ steps.version.outputs.VERSION }} 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:${{ steps.version.outputs.VERSION }}
+        docker push 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:${{ steps.version.outputs.VERSION }}
 
     - name: Update Helm Values
       run: |
-        sed -i "s/tag:.*/tag: $VERSION/" helm/fastapi/values.yaml
+        sed -i "s/tag:.*/tag: ${{ steps.version.outputs.VERSION }}/" helm/fastapi/values.yaml
 
     - name: Commit & Push Changes
       run: |
         git config user.name "github-actions"
         git config user.email "actions@github.com"
         git add helm/fastapi/values.yaml
-        git commit -m "Update image to $VERSION" || echo "No changes to commit"
+        git commit -m "Update image to ${{ steps.version.outputs.VERSION }}" || echo "No changes to commit"
         git push
