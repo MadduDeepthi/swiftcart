@@ -1,5 +1,5 @@
 image:
-  tag: staging-latest
+  tag: v1.1776487136
 
 env:
   ENV: "staging"
