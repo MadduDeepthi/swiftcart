@@ -1,6 +1,6 @@
 image:
 
-  tag: wrong-tag
+  tag: v1.1776505073
   pullPolicy: IfNotPresent
 
 replicaCount: 2
