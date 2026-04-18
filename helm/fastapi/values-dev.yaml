@@ -1,5 +1,5 @@
 image:
-  tag: dev-latest
+  tag: v1.1776487136
 
 replicaCount: 1
 
