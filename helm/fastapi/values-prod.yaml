@@ -1,5 +1,5 @@
 image:
-  tag: ""
+  tag: v1.1776509616
   pullPolicy: IfNotPresent
 
 replicaCount: 3
