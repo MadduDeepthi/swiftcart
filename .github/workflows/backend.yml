@@ -17,48 +17,57 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    outputs:
+      VERSION: ${{ steps.version.outputs.VERSION }}
+
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Generate Version
-      id: version
-      run: echo "VERSION=v1.$(date +%s)" >> $GITHUB_OUTPUT
+      - name: Generate Version
+        id: version
+        run: echo "VERSION=v1.$(date +%s)" >> $GITHUB_OUTPUT
 
-    - name: Build Docker Image
-      run: |
-        docker build -t swiftcart-backend:${{ steps.version.outputs.VERSION }} ./backend
+      - name: Build Docker Image
+        run: |
+          docker build -t swiftcart-backend:${{ steps.version.outputs.VERSION }} ./backend
 
-    - name: Scan Image (Trivy)
-      uses: aquasecurity/trivy-action@v0.20.0
-      with:
-        image-ref: swiftcart-backend:${{ steps.version.outputs.VERSION }}
-        severity: HIGH,CRITICAL
+      - name: Scan Image (Trivy)
+        uses: aquasecurity/trivy-action@v0.20.0
+        with:
+          image-ref: swiftcart-backend:${{ steps.version.outputs.VERSION }}
+          severity: HIGH,CRITICAL
 
-    - name: Configure AWS (OIDC)
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::851725587609:role/github-actions-role
-        aws-region: us-east-1
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::851725587609:role/github-actions-role
+          aws-region: us-east-1
 
-    - name: Login to ECR
-      run: |
-        aws ecr get-login-password --region us-east-1 \
-        | docker login --username AWS --password-stdin 851725587609.dkr.ecr.us-east-1.amazonaws.com
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 \
+          | docker login --username AWS --password-stdin 851725587609.dkr.ecr.us-east-1.amazonaws.com
 
-    - name: Push to ECR
-      run: |
-        docker tag swiftcart-backend:${{ steps.version.outputs.VERSION }} 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:${{ steps.version.outputs.VERSION }}
-        docker push 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:${{ steps.version.outputs.VERSION }}
+      - name: Push to ECR
+        run: |
+          docker tag swiftcart-backend:${{ steps.version.outputs.VERSION }} 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:${{ steps.version.outputs.VERSION }}
+          docker push 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:${{ steps.version.outputs.VERSION }}
 
-    - name: Update Helm Values (dev only)
-      run: |
-        sed -i "s/tag:.*/tag: ${{ steps.version.outputs.VERSION }}/" helm/fastapi/values-dev.yaml
+      - name: Update Helm Values (dev only)
+        run: |
+          sed -i "s/tag:.*/tag: ${{ steps.version.outputs.VERSION }}/" helm/fastapi/values-dev.yaml
 
-    - name: Commit & Push Changes
-      run: |
-        git config user.name "github-actions"
-        git config user.email "actions@github.com"
-        git add helm/fastapi/values-dev.yaml
-        git commit -m "Update image to ${{ steps.version.outputs.VERSION }}" || echo "No changes to commit"
-        git push
+      - name: Commit & Push Changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add helm/fastapi/values-dev.yaml
+          git commit -m "Update image to ${{ steps.version.outputs.VERSION }}" || echo "No changes"
+          git push
+
+  promote-staging:
+    needs: build
+    uses: ./.github/workflows/promote-staging.yml
+    with:
+      image_tag: ${{ needs.build.outputs.VERSION }}

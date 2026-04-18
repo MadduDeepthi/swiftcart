@@ -1,6 +1,16 @@
 image:
-  tag: v1.1776487136
+
+  tag: ""
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
 
 env:
   ENV: "staging"
   DEBUG: "false"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5

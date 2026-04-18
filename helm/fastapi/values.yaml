@@ -3,14 +3,14 @@ replicaCount: 2
 image:
   repository: 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend
 
-  tag: latest
+  tag: ""
 
 service:
   type: LoadBalancer
   port: 80
 
 env:
-  ENV: "base"
+  ENV: "dev"
 
 
 autoscaling:
@@ -18,3 +18,17 @@ autoscaling:
   minReplicas: 2
   maxReplicas: 6
   targetCPUUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"    
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 25%
+    maxSurge: 25%  

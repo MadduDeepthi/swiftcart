@@ -1,5 +1,6 @@
 image:
-  tag: v1.1776487136
+  tag: ""
+  pullPolicy: IfNotPresent
 
 replicaCount: 3
 
@@ -8,5 +9,6 @@ env:
   DEBUG: "false"
 
 autoscaling:
+  enabled: true
   minReplicas: 3
   maxReplicas: 10
