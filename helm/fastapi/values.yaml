@@ -2,7 +2,16 @@ replicaCount: 2
 
 image:
   repository: 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend
-  tag: v1.1776354772
+
+  tag: latest
+
+service:
+  type: LoadBalancer
+  port: 80
+
+env:
+  ENV: "base"
+
 
 autoscaling:
   enabled: true

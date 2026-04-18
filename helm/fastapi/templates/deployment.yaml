@@ -17,25 +17,34 @@ spec:
       containers:
         - name: fastapi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          ports:
-            - containerPort: 80
+          imagePullPolicy: Always
 
-          # ✅ Health checks
+          ports:
+            - containerPort: {{ .Values.service.port }}
+
+          #  Environment Variables
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{- end }}
+
+          #  Health checks
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: {{ .Values.service.port }}
             initialDelaySeconds: 5
             periodSeconds: 5
 
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: {{ .Values.service.port }}
             initialDelaySeconds: 10
             periodSeconds: 10
 
-          # ✅ Resource limits
+          #  Resource limits (can later move to values.yaml)
           resources:
             requests:
               cpu: "100m"

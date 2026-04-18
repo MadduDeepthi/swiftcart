@@ -1,0 +1,12 @@
+image:
+  tag: prod-stable
+
+replicaCount: 3
+
+env:
+  ENV: "prod"
+  DEBUG: "false"
+
+autoscaling:
+  minReplicas: 3
+  maxReplicas: 10

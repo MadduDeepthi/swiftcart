@@ -1,0 +1,33 @@
+name: Promote to Staging
+
+on:
+    workflow_dispatch:
+        inputs:
+            image_tag:
+                description: "Docker image tag to promote (e.g., v1.1776333636)"
+                required: true
+
+permissions:
+    contents: write
+
+jobs:
+    promote:
+        runs-on: ubuntu-latest
+
+
+        steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v3
+
+        - name: Update Helm values for staging
+          run: |
+               sed -i "s/tag:.*/tag: ${{ github.event.inputs.image_tag }}/" helm/fastapi/values-staging.yaml
+
+        - name: Commit and Push Changes
+          run: |
+            git config user.name "github-actions"
+            git config user.email "actions@github.com"
+            git add helm/fastapi/values-staging.yaml
+            git commit -m "Promote to staging: ${{ github.event.inputs.image_tag }}" || echo "No changes to commit"
+            git push
+

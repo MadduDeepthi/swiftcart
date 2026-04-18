@@ -1,0 +1,6 @@
+image:
+  tag: staging-latest
+
+env:
+  ENV: "staging"
+  DEBUG: "false"

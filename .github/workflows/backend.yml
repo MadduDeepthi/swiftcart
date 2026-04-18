@@ -51,14 +51,14 @@ jobs:
         docker tag swiftcart-backend:${{ steps.version.outputs.VERSION }} 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:${{ steps.version.outputs.VERSION }}
         docker push 851725587609.dkr.ecr.us-east-1.amazonaws.com/swiftcart-backend:${{ steps.version.outputs.VERSION }}
 
-    - name: Update Helm Values
+    - name: Update Helm Values (dev only)
       run: |
-        sed -i "s/tag:.*/tag: ${{ steps.version.outputs.VERSION }}/" helm/fastapi/values.yaml
+        sed -i "s/tag:.*/tag: ${{ steps.version.outputs.VERSION }}/" helm/fastapi/values-dev.yaml
 
     - name: Commit & Push Changes
       run: |
         git config user.name "github-actions"
         git config user.email "actions@github.com"
-        git add helm/fastapi/values.yaml
+        git add helm/fastapi/values-dev.yaml
         git commit -m "Update image to ${{ steps.version.outputs.VERSION }}" || echo "No changes to commit"
         git push
