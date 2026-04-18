@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - "backend/**"
-      - "helm/**"
       - ".github/workflows/backend.yml"
 
 permissions:
