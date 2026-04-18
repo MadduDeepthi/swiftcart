@@ -66,8 +66,8 @@ jobs:
           git commit -m "Update image to ${{ steps.version.outputs.VERSION }}" || echo "No changes"
           git push
 
-  promote-staging:
-    needs: build
-    uses: ./.github/workflows/promote-staging.yml
-    with:
-      image_tag: ${{ needs.build.outputs.VERSION }}
+#  promote-staging:
+#    needs: build
+ #   uses: ./.github/workflows/promote-staging.yml
+   # with:
+    #  image_tag: ${{ needs.build.outputs.VERSION }}
