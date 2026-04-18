@@ -9,5 +9,6 @@ env:
   DEBUG: "true"
 
 autoscaling:
+  enabled: false
   minReplicas: 1
   maxReplicas: 2
