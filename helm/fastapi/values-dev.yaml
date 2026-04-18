@@ -1,5 +1,5 @@
 image:
-  tag: v1.1776494737
+  tag: v1.1776505073
   pullPolicy: Always
 
 replicaCount: 1
